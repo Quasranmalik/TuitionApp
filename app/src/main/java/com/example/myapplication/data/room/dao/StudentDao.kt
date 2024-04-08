@@ -8,6 +8,15 @@ import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import java.time.LocalDate
 
+private const val studentListQuery = "Select id,first_name ,last_name,class,pending_months, " +
+        "CASE "+
+        "WHEN pending_months = 0 THEN"+
+        "(SELECT MAX(paid_till_date) FROM TRANSACTIONS WHERE student_id = id)  " +
+        "ELSE "+
+        "(SELECT MAX(join_date) FROM FeeHistory WHERE student_id = id)"+
+        "END as lastPaidDate "+
+        "FROM Students "
+
 @Dao
 interface StudentDao {
 
@@ -24,25 +33,17 @@ interface StudentDao {
     suspend fun update(student: Student)
 
 
-   @Query("Select id,first_name ,last_name,class,MAX(paid_till_date) as lastPaidDate from Students JOIN Transactions" +
-           " ON Students.id = Transactions.student_id GROUP BY id " +
-           "ORDER BY first_name ASC,last_name ASC")
-   fun allStudentsWithLastPaidDateNameAscending():PagingSource<Int, NameWithPaidTillDate>
+   @Query( studentListQuery + "ORDER BY first_name ASC,last_name ASC")
+   fun allStudentsWithLastPaidDateNameAscending():PagingSource<Int, NameWithFeeDate>
 
-    @Query("Select id,first_name ,last_name,class,MAX(paid_till_date) as lastPaidDate from Students JOIN Transactions" +
-            " ON Students.id = Transactions.student_id GROUP BY id " +
-            "ORDER BY first_name DESC,last_name DESC")
-    fun allStudentsWithLastPaidDateNameDescending():PagingSource<Int, NameWithPaidTillDate>
+    @Query(studentListQuery + "ORDER BY first_name DESC,last_name DESC")
+    fun allStudentsWithLastPaidDateNameDescending():PagingSource<Int, NameWithFeeDate>
 
-    @Query("Select id,first_name ,last_name,class,MAX(paid_till_date) as lastPaidDate from Students JOIN Transactions" +
-            " ON Students.id = Transactions.student_id GROUP BY id " +
-            "ORDER BY class ASC")
-    fun allStudentsWithLastPaidDateClassAscending():PagingSource<Int, NameWithPaidTillDate>
+    @Query( studentListQuery + "ORDER BY class ASC")
+    fun allStudentsWithLastPaidDateClassAscending():PagingSource<Int, NameWithFeeDate>
 
-    @Query("Select id,first_name ,last_name,class,MAX(paid_till_date) as lastPaidDate from Students JOIN Transactions" +
-            " ON Students.id = Transactions.student_id GROUP BY id " +
-            "ORDER BY class DESC")
-    fun allStudentsWithLastPaidDateClassDescending():PagingSource<Int, NameWithPaidTillDate>
+    @Query(studentListQuery + "ORDER BY class DESC")
+    fun allStudentsWithLastPaidDateClassDescending():PagingSource<Int, NameWithFeeDate>
 
    @RestrictTo(RestrictTo.Scope.TESTS)
     @Query("Select * FROM Students JOIN FeeHistory ON  Students.id = FeeHistory.student_id Where Students.id =:sid AND " +
@@ -57,11 +58,12 @@ interface StudentDao {
 //(SELECT MAX(paid_till_date) FROM Transactions WHERE :sid = Transactions.student_id )
 
 
-data class NameWithPaidTillDate(
+data class NameWithFeeDate(
     val id:Long,
     @ColumnInfo(name="first_name") val firstName:String,
     @ColumnInfo(name="last_name") val lastName :String?,
+    @ColumnInfo(name="pending_months") val pendingMonths:Int,
     @ColumnInfo(name = "class") val classYear:Int,
-     val lastPaidDate: LocalDate
+     val feeDate: LocalDate
 )
 

@@ -1,10 +1,7 @@
 package com.example.myapplication.data.student
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import com.example.myapplication.data.room.dao.NameWithPaidTillDate
+import com.example.myapplication.data.room.dao.NameWithFeeDate
 import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
@@ -12,7 +9,7 @@ import com.example.myapplication.ui.home.SortField
 import kotlinx.coroutines.flow.Flow
 
 interface StudentRepository {
-    fun allStudentWithPendingMonths(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithPaidTillDate>>
+    fun allStudentWithPendingMonths(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithFeeDate>>
 
     suspend fun pendingFeeMonthHistoryOfStudent(sid: Long): List<FeeHistory>
 
