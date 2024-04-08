@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 class UtilsKtTest {
 
-    private val student = Student(id=0,firstName ="Quasran",classYear=10)
+    private val student = Student(id=0,firstName ="Quasran",classYear=10, pendingMonths = 1)
     private val transaction = Transaction(sid=0,paidTillDate= LocalDate.now(),month=3)
     private val feeHistory = FeeHistory(sid=0, joinDate = LocalDate.now(),fee=0)
     @Test

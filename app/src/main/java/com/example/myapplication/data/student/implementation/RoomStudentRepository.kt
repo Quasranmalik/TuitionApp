@@ -1,11 +1,9 @@
 package com.example.myapplication.data.student.implementation
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
@@ -15,7 +13,7 @@ import androidx.work.WorkQuery
 import com.example.myapplication.Operation
 import com.example.myapplication.data.student.StudentRepository
 import com.example.myapplication.data.room.dao.FeeHistoryDao
-import com.example.myapplication.data.room.dao.NameWithPaidTillDate
+import com.example.myapplication.data.room.dao.NameWithFeeDate
 import com.example.myapplication.data.room.dao.StudentDao
 import com.example.myapplication.data.room.dao.TransactionDao
 import com.example.myapplication.data.room.model.FeeHistory
@@ -47,7 +45,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         pageSize: Int,
         sortField: SortField,
         ascending: Boolean
-    ): Flow<PagingData<NameWithPaidTillDate>> = Pager(
+    ): Flow<PagingData<NameWithFeeDate>> = Pager(
         config = PagingConfig(pageSize = pageSize),
         ){
         when(sortField){

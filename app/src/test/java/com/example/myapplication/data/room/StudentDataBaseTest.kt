@@ -21,6 +21,7 @@ import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import org.assertj.core.api.Assertions.*
+import org.junit.After
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -41,7 +42,7 @@ class StudentDataBaseTest {
             feeHistory.copy(joinDate = LocalDate.of(2022,1,1)),
             feeHistory.copy(joinDate = LocalDate.of(2023,1,1)))
     }
-    private val student = Student(id=1,firstName = "Quasran", classYear = 10)
+    private val student = Student(id=1,firstName = "Quasran", classYear = 10, pendingMonths = 0)
 
     @Before
     fun setUp() {
@@ -55,6 +56,10 @@ class StudentDataBaseTest {
 
     }
 
+    @After
+    fun closeDb(){
+        db.close()
+    }
     private suspend  fun insert_data(){
         studentDao.insert(student)
         transactions.forEach { transactionDao.insert(it) }
@@ -64,13 +69,25 @@ class StudentDataBaseTest {
 
 
     @Test
-    fun student_dao_load_all_students_test() = runTest {
+    fun check_student_dao_load_all_students_with_pending_month_0_returns_last_transaction_test() = runTest {
         insert_data()
-        val studentPagingSource = studentDao.allStudentsWithLastPaidDate()
+        val studentPagingSource = studentDao.allStudentsWithLastPaidDateNameAscending()
         val pager = TestPager(PagingConfig(pageSize = 4, initialLoadSize = 4),studentPagingSource)
         val result = pager.refresh() as PagingSource.LoadResult.Page
         assertThat(result.data).singleElement().
         extracting("lastPaidDate").isEqualTo(LocalDate.of(2022,1,1))
+
+
+    }
+    @Test
+    fun check_student_dao_load_all_students_with_pending_month_0_returns_last_fee_history_test() = runTest{
+        insert_data()
+        studentDao.update(student.copy(pendingMonths = 1))
+        val studentPagingSource = studentDao.allStudentsWithLastPaidDateNameAscending()
+        val pager = TestPager(PagingConfig(pageSize = 4, initialLoadSize = 4),studentPagingSource)
+        val result = pager.refresh() as PagingSource.LoadResult.Page
+        assertThat(result.data).singleElement().
+        extracting("lastPaidDate").isEqualTo(LocalDate.of(2023,1,1))
     }
 
     @Test

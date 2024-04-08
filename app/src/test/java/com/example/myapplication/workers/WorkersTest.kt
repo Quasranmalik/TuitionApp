@@ -35,7 +35,7 @@ class WorkersTest {
     lateinit var studentDao: StudentDao
     lateinit var workManager:WorkManager
 
-    val student = Student(firstName="Quasran", lastName = "A", classYear=10)
+    val student = Student(firstName="Quasran", lastName = "A", pendingMonths = 1, classYear=10)
 
 
     @Before

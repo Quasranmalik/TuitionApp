@@ -1,11 +1,8 @@
 package com.example.myapplication.ui.home
 
-import androidx.annotation.RestrictTo
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
@@ -16,7 +13,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.Period
@@ -53,7 +49,7 @@ class HomeViewModel  @Inject constructor(
             NameWithPendingMonth.StudentItem(id=it.id,
                 name=it.firstName+it.lastName,
                 classYear = it.classYear,
-                pendingMonths = Period.between(it.lastPaidDate, LocalDate.now()).months)
+                pendingMonths = Period.between(it.feeDate, LocalDate.now()).months)
 
         }.insertSeparators { before, after ->
             val description:String? = when(sortField.value){

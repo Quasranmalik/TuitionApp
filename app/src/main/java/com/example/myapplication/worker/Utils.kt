@@ -12,6 +12,7 @@ import com.example.myapplication.KEY_LAST_NAME
 import com.example.myapplication.KEY_MONTH
 import com.example.myapplication.KEY_OPERATION_TYPE
 import com.example.myapplication.KEY_PAID_TILL_DATE
+import com.example.myapplication.KEY_PENDING_MONTHS
 import com.example.myapplication.Operation
 import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
@@ -23,7 +24,8 @@ fun Student.toWorkData(operation: Operation) = workDataOf(KEY_OPERATION_TYPE to 
                                             KEY_ID to id,
                                             KEY_FIRST_NAME to firstName,
                                             KEY_LAST_NAME to lastName,
-                                            KEY_CLASS to classYear
+                                            KEY_CLASS to classYear,
+                                            KEY_PENDING_MONTHS to pendingMonths
                                             )
 
 
@@ -38,7 +40,9 @@ fun Data.toStudent(): Student =
             ?:throw IllegalArgumentException("First Name is null"),
         lastName = getString(KEY_LAST_NAME),
         classYear = getInt(KEY_CLASS,-1)
-            .also{if (it < 0) throw IllegalArgumentException("Class Year is Negative")}
+            .also{if (it < 0) throw IllegalArgumentException("Class Year is Negative")},
+        pendingMonths = getInt(KEY_PENDING_MONTHS,-1)
+            .also{if (it < 0) throw IllegalArgumentException("PendingMonths Is Negative")}
     )
 
 

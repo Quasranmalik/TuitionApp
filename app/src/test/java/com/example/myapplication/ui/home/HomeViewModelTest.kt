@@ -5,20 +5,15 @@ package com.example.myapplication.ui.home
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.testing.asSnapshot
-import com.example.myapplication.data.room.dao.NameWithPaidTillDate
+import com.example.myapplication.data.room.dao.NameWithFeeDate
 import com.example.myapplication.model.NameWithPendingMonth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -41,7 +36,7 @@ class HomeViewModelTest {
 
     private lateinit var  homeViewModel :HomeViewModel
 
-    private val student1= NameWithPaidTillDate(id=1,firstName="AA", lastName ="",classYear = 1, lastPaidDate = date)
+    private val student1= NameWithFeeDate(id=1,firstName="AA", lastName ="",classYear = 1, pendingMonths = 1, feeDate = date)
     private val studentsSortedByName = listOf(student1,
         student1.copy(firstName = "AB"),
         student1.copy(firstName = "BA"),
