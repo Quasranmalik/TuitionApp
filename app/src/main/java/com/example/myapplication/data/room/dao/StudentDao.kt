@@ -14,7 +14,7 @@ private const val studentListQuery = "Select id,first_name ,last_name,class,pend
         "(SELECT MAX(paid_till_date) FROM TRANSACTIONS WHERE student_id = id)  " +
         "ELSE "+
         "(SELECT MAX(join_date) FROM FeeHistory WHERE student_id = id)"+
-        "END as lastPaidDate "+
+        "END as fee_date "+
         "FROM Students "
 
 @Dao
@@ -64,6 +64,6 @@ data class NameWithFeeDate(
     @ColumnInfo(name="last_name") val lastName :String?,
     @ColumnInfo(name="pending_months") val pendingMonths:Int,
     @ColumnInfo(name = "class") val classYear:Int,
-     val feeDate: LocalDate
+    @ColumnInfo(name = "fee_date") val feeDate: LocalDate
 )
 
