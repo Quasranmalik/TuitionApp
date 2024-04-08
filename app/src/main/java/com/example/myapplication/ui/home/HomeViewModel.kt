@@ -49,7 +49,7 @@ class HomeViewModel  @Inject constructor(
             NameWithPendingMonth.StudentItem(id=it.id,
                 name=it.firstName+it.lastName,
                 classYear = it.classYear,
-                pendingMonths = Period.between(it.feeDate, LocalDate.now()).months)
+                pendingMonths = it.pendingMonths + Period.between(it.feeDate, LocalDate.now()).months)
 
         }.insertSeparators { before, after ->
             val description:String? = when(sortField.value){

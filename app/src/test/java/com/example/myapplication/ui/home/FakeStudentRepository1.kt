@@ -80,11 +80,8 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
     }
 
 }
-val date= LocalDate.now().minusMonths(2)
-val student2 = NameWithFeeDate(id=1,firstName="class",lastName="",classYear=1, pendingMonths = 1, feeDate=date)
 
-val studentsSortedByClass = listOf(student2,
-    student2,student2.copy(classYear=2),student2.copy(classYear=2))
+
 
 
 

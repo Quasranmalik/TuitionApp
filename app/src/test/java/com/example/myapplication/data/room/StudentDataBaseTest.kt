@@ -87,7 +87,7 @@ class StudentDataBaseTest {
         val pager = TestPager(PagingConfig(pageSize = 4, initialLoadSize = 4),studentPagingSource)
         val result = pager.refresh() as PagingSource.LoadResult.Page
         assertThat(result.data).singleElement().
-        extracting("lastPaidDate").isEqualTo(LocalDate.of(2023,1,1))
+        extracting("feeDate").isEqualTo(LocalDate.of(2023,1,1))
     }
 
     @Test
