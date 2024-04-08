@@ -32,23 +32,26 @@ class HomeViewModelTest {
     @get:Rule
     var mainDispatcherRule = MainDispatcherRule(UnconfinedTestDispatcher())
 
+    private val feeDate= LocalDate.now().minusMonths(2)
 
 
     private lateinit var  homeViewModel :HomeViewModel
 
-    private val student1= NameWithFeeDate(id=1,firstName="AA", lastName ="",classYear = 1, pendingMonths = 1, feeDate = date)
+    private val student1= NameWithFeeDate(id=1,firstName="AA", lastName ="",classYear = 1, pendingMonths = 1, feeDate = feeDate)
     private val studentsSortedByName = listOf(student1,
         student1.copy(firstName = "AB"),
         student1.copy(firstName = "BA"),
         student1.copy(firstName = "BB"))
+    private val expectedPendingMonth = pending_month_calculator(feeDate)+student1.pendingMonths
+    private val expectedStudentSortedByName =NameWithPendingMonth.StudentItem(id=1,name="AA",classYear=1, pendingMonths = expectedPendingMonth)
 
     private val expectedStudentsSortedByName = listOf(
         NameWithPendingMonth.SeparatorItem("A"),
-        NameWithPendingMonth.StudentItem(id=1,name="AA",classYear=1, pendingMonths = 2),
-        NameWithPendingMonth.StudentItem(id=1,name="AB",classYear=1, pendingMonths = 2),
+        expectedStudentSortedByName,
+        expectedStudentSortedByName.copy(name="AB"),
         NameWithPendingMonth.SeparatorItem("B"),
-        NameWithPendingMonth.StudentItem(id=1,name="BA",classYear=1, pendingMonths = 2),
-        NameWithPendingMonth.StudentItem(id=1,name="BB",classYear=1, pendingMonths = 2))
+        expectedStudentSortedByName.copy(name="BA"),
+        expectedStudentSortedByName.copy(name="BB"))
 
 
     @Before
