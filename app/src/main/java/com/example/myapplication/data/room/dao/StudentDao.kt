@@ -46,10 +46,16 @@ interface StudentDao {
     fun allStudentsWithLastPaidDateClassDescending():PagingSource<Int, NameWithFeeDate>
 
    @RestrictTo(RestrictTo.Scope.TESTS)
-    @Query("Select * FROM Students JOIN FeeHistory ON  Students.id = FeeHistory.student_id Where Students.id =:sid AND " +
+    @Query("SELECT * FROM Students JOIN FeeHistory ON  Students.id = FeeHistory.student_id Where Students.id =:sid AND " +
                 " join_date =  (SELECT  MAX(join_date) FROM  FeeHistory WHERE FeeHistory.student_id = :sid AND join_date <= " +
                             "(SELECT MAX(paid_till_date) FROM Transactions WHERE :sid = Transactions.student_id )) " )
     fun studentCurrentFeeHistory(sid:Long):Map<Student, FeeHistory>
+
+    @Query(studentListQuery +
+    " WHERE :fromDay <= CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT)    AND " +
+            " CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) <=:toDay " )
+    fun studentUpcoming(fromDay:Int,toDay:Int):PagingSource<Int,NameWithFeeDate>
+
 }
 
 
