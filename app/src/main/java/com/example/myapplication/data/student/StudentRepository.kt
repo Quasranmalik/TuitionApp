@@ -9,7 +9,7 @@ import com.example.myapplication.ui.home.SortField
 import kotlinx.coroutines.flow.Flow
 
 interface StudentRepository {
-    fun allStudentWithPendingMonths(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithFeeDate>>
+    fun allStudent(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithFeeDate>>
 
     suspend fun pendingFeeMonthHistoryOfStudent(sid: Long): List<FeeHistory>
 

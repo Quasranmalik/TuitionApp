@@ -76,7 +76,7 @@ class StudentDaoUpcomingStudentTest {
 //            }
         }
 //        advanceUntilIdle()
-        val pager = TestPager(PagingConfig(pageSize = 10, initialLoadSize = 10),studentDao.studentUpcoming(1,3))
+        val pager = TestPager(PagingConfig(pageSize = 10, initialLoadSize = 10),studentDao.upcomingStudents(1,3))
         val result = pager.refresh() as PagingSource.LoadResult.Page
 
         assertThat(result.data).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")

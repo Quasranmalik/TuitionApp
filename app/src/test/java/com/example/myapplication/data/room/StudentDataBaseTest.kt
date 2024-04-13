@@ -71,7 +71,7 @@ class StudentDataBaseTest {
     @Test
     fun check_student_dao_load_all_students_with_pending_month_0_returns_last_transaction_test() = runTest {
         insert_data()
-        val studentPagingSource = studentDao.allStudentsWithLastPaidDateNameAscending()
+        val studentPagingSource = studentDao.allStudentsNameAscending()
         val pager = TestPager(PagingConfig(pageSize = 4, initialLoadSize = 4),studentPagingSource)
         val result = pager.refresh() as PagingSource.LoadResult.Page
         assertThat(result.data).singleElement().
@@ -83,7 +83,7 @@ class StudentDataBaseTest {
     fun check_student_dao_load_all_students_with_pending_month_0_returns_last_fee_history_test() = runTest{
         insert_data()
         studentDao.update(student.copy(pendingMonths = 1))
-        val studentPagingSource = studentDao.allStudentsWithLastPaidDateNameAscending()
+        val studentPagingSource = studentDao.allStudentsNameAscending()
         val pager = TestPager(PagingConfig(pageSize = 4, initialLoadSize = 4),studentPagingSource)
         val result = pager.refresh() as PagingSource.LoadResult.Page
         assertThat(result.data).singleElement().

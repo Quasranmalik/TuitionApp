@@ -10,12 +10,11 @@ import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.time.LocalDate
 
 class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDate>): StudentRepository {
 
 
-    override fun allStudentWithPendingMonths(
+    override fun allStudent(
         pageSize: Int,
         sortField: SortField,
         ascending: Boolean
