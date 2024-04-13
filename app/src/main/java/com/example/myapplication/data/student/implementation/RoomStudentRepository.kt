@@ -31,6 +31,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import javax.inject.Inject
 
 class RoomStudentRepository @Inject constructor(@ApplicationContext context: Context, private val studentDao : StudentDao,
@@ -46,7 +47,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         sortField: SortField,
         ascending: Boolean
     ): Flow<PagingData<NameWithFeeDate>> = Pager(
-        config = PagingConfig(pageSize = pageSize),
+        config = PagingConfig(pageSize = pageSize)
         ){
         when(sortField){
             SortField.Name -> when(ascending){
@@ -60,6 +61,21 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         }
     }.flow
 
+    override fun upcomingStudents(
+        withinDays: Int,
+        pageSize: Int
+    ): Flow<PagingData<NameWithFeeDate>> = Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        val todayDate = LocalDate.now()
+        val today = todayDate.dayOfMonth
+        val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
+            val day = today + withinDays
+            if (day > lastDayOfMonth) day - lastDayOfMonth else day
+        }
+
+        studentDao.studentUpcoming(today,tillDay)
+    }.flow
 
     override suspend fun pendingFeeMonthHistoryOfStudent(sid: Long):List<FeeHistory> = withContext(Dispatchers.IO){
         coroutineScope {
@@ -185,6 +201,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
          return workManager.getWorkInfosFlow(workQuery).map { it.isNotEmpty() }
 
     }
+
 
 
 }
