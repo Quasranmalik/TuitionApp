@@ -36,4 +36,6 @@ interface StudentRepository {
 
      fun anyPendingTransaction(id:Long):Flow<Boolean>
 
+     fun upcomingStudents(withinDays:Int,pageSize: Int):Flow<PagingData<NameWithFeeDate>>
+
 }
