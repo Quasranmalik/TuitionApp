@@ -55,6 +55,11 @@ interface StudentDao {
     " WHERE :fromDay <= CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT)    AND " +
             " CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) <=:toDay " )
     fun upcomingStudents(fromDay:Int, toDay:Int):PagingSource<Int,NameWithFeeDate>
+    @Query(studentListQuery +
+            " WHERE (pending_months > 0 OR CAST (strftime('%s','now','-1 month') AS INT) >= fee_date*24*60*60)" +
+            "ORDER BY first_name ASC,last_name ASC")
+    fun pendingStudents():PagingSource<Int,NameWithFeeDate>
+
 
 
 }
