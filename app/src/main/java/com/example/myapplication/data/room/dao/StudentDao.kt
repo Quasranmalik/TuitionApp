@@ -34,16 +34,16 @@ interface StudentDao {
 
 
    @Query( studentListQuery + "ORDER BY first_name ASC,last_name ASC")
-   fun allStudentsWithLastPaidDateNameAscending():PagingSource<Int, NameWithFeeDate>
+   fun allStudentsNameAscending():PagingSource<Int, NameWithFeeDate>
 
     @Query(studentListQuery + "ORDER BY first_name DESC,last_name DESC")
-    fun allStudentsWithLastPaidDateNameDescending():PagingSource<Int, NameWithFeeDate>
+    fun allStudentsNameDescending():PagingSource<Int, NameWithFeeDate>
 
     @Query( studentListQuery + "ORDER BY class ASC")
-    fun allStudentsWithLastPaidDateClassAscending():PagingSource<Int, NameWithFeeDate>
+    fun allStudentsClassAscending():PagingSource<Int, NameWithFeeDate>
 
     @Query(studentListQuery + "ORDER BY class DESC")
-    fun allStudentsWithLastPaidDateClassDescending():PagingSource<Int, NameWithFeeDate>
+    fun allStudentsClassDescending():PagingSource<Int, NameWithFeeDate>
 
    @RestrictTo(RestrictTo.Scope.TESTS)
     @Query("SELECT * FROM Students JOIN FeeHistory ON  Students.id = FeeHistory.student_id Where Students.id =:sid AND " +
@@ -54,14 +54,17 @@ interface StudentDao {
     @Query(studentListQuery +
     " WHERE :fromDay <= CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT)    AND " +
             " CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) <=:toDay " )
-    fun studentUpcoming(fromDay:Int,toDay:Int):PagingSource<Int,NameWithFeeDate>
+    fun upcomingStudents(fromDay:Int, toDay:Int):PagingSource<Int,NameWithFeeDate>
+    @Query(studentListQuery +
+            " WHERE (pending_months > 0 OR CAST (strftime('%s','now','-1 month') AS INT) >= fee_date*24*60*60)" +
+            "ORDER BY first_name ASC,last_name ASC")
+    fun pendingStudents():PagingSource<Int,NameWithFeeDate>
+
+
 
 }
 
 
-//(SELECT  MAX(join_date) FROM  FeeHistory WHERE FeeHistory.student_id = :sid AND join_date <= )
-//
-//(SELECT MAX(paid_till_date) FROM Transactions WHERE :sid = Transactions.student_id )
 
 
 data class NameWithFeeDate(
