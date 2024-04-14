@@ -42,7 +42,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
     private val workManager = WorkManager.getInstance(context)
 
-    override fun allStudentWithPendingMonths(
+    override fun allStudent(
         pageSize: Int,
         sortField: SortField,
         ascending: Boolean
@@ -51,12 +51,12 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         ){
         when(sortField){
             SortField.Name -> when(ascending){
-                true -> studentDao.allStudentsWithLastPaidDateNameAscending()
-                false -> studentDao.allStudentsWithLastPaidDateNameDescending()
+                true -> studentDao.allStudentsNameAscending()
+                false -> studentDao.allStudentsNameDescending()
             }
             SortField.Class -> when(ascending){
-                true -> studentDao.allStudentsWithLastPaidDateClassAscending()
-                false -> studentDao.allStudentsWithLastPaidDateClassDescending()
+                true -> studentDao.allStudentsClassAscending()
+                false -> studentDao.allStudentsClassDescending()
             }
         }
     }.flow
@@ -64,7 +64,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
     override fun upcomingStudents(
         withinDays: Int,
         pageSize: Int
-    ): Flow<PagingData<NameWithFeeDate>> = Pager(
+    ) = Pager(
         config =PagingConfig(pageSize=pageSize)
     ){
         val todayDate = LocalDate.now()
@@ -74,8 +74,15 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
             if (day > lastDayOfMonth) day - lastDayOfMonth else day
         }
 
-        studentDao.studentUpcoming(today,tillDay)
+        studentDao.upcomingStudents(today,tillDay)
     }.flow
+
+    override fun pendingStudents(pageSize:Int) = Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        studentDao.pendingStudents()
+    }.flow
+
 
     override suspend fun pendingFeeMonthHistoryOfStudent(sid: Long):List<FeeHistory> = withContext(Dispatchers.IO){
         coroutineScope {
