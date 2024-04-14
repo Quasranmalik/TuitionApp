@@ -64,7 +64,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
     override fun upcomingStudents(
         withinDays: Int,
         pageSize: Int
-    ): Flow<PagingData<NameWithFeeDate>> = Pager(
+    ) = Pager(
         config =PagingConfig(pageSize=pageSize)
     ){
         val todayDate = LocalDate.now()
@@ -76,6 +76,13 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
         studentDao.upcomingStudents(today,tillDay)
     }.flow
+
+    override fun pendingStudents(pageSize:Int) = Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        studentDao.pendingStudents()
+    }.flow
+
 
     override suspend fun pendingFeeMonthHistoryOfStudent(sid: Long):List<FeeHistory> = withContext(Dispatchers.IO){
         coroutineScope {

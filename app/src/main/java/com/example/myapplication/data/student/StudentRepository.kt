@@ -38,4 +38,6 @@ interface StudentRepository {
 
      fun upcomingStudents(withinDays:Int,pageSize: Int):Flow<PagingData<NameWithFeeDate>>
 
+     fun pendingStudents(pageSize:Int):Flow<PagingData<NameWithFeeDate>>
+
 }
