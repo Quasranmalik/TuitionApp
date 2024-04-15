@@ -65,8 +65,7 @@ interface StudentDao {
             "ELSE "+
             "(SELECT MAX(join_date) FROM FeeHistory WHERE student_id = id) "+
             "END) AS fee_date FROM Students )  " +
-            "WHERE fee_day BETWEEN :fromDay AND " +
-            " (CASE WHEN :toDay >= :fromDay THEN :toDay ELSE 31 + :toDay END)" +
+            "WHERE fee_day <= (CASE WHEN :toDay >= :fromDay THEN :toDay ELSE 31 + :toDay END)" +
             "ORDER BY fee_day,first_name,last_name" )
     fun upcomingStudents(fromDay:Int, toDay:Int):PagingSource<Int,NameWithFeeDate>
     @Query(studentListQuery +
