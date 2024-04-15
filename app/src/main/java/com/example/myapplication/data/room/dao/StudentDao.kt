@@ -51,15 +51,28 @@ interface StudentDao {
                             "(SELECT MAX(paid_till_date) FROM Transactions WHERE :sid = Transactions.student_id )) " )
     fun studentCurrentFeeHistory(sid:Long):Map<Student, FeeHistory>
 
-    @Query(studentListQuery +
-    " WHERE :fromDay <= CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT)    AND " +
-            " CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) <=:toDay " )
+    @Query("Select id,first_name ,last_name,class,pending_months,fee_date," +
+            "(CASE " +
+            "WHEN CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) >= :fromDay THEN " +
+            "CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT)  " +
+            "ELSE " +
+            "(CAST  (strftime('%d',fee_date*24*3600,'unixepoch') AS INT) + 31 ) " +
+            "END) AS fee_day "+
+            "FROM  " +
+            "(SELECT *, (CASE "+
+            "WHEN pending_months = 0 THEN"+
+            "(SELECT MAX(paid_till_date) FROM TRANSACTIONS WHERE student_id = id)  " +
+            "ELSE "+
+            "(SELECT MAX(join_date) FROM FeeHistory WHERE student_id = id) "+
+            "END) AS fee_date FROM Students )  " +
+            "WHERE fee_day BETWEEN :fromDay AND " +
+            " (CASE WHEN :toDay >= :fromDay THEN :toDay ELSE 31 + :toDay END)" +
+            "ORDER BY fee_day,first_name,last_name" )
     fun upcomingStudents(fromDay:Int, toDay:Int):PagingSource<Int,NameWithFeeDate>
     @Query(studentListQuery +
             " WHERE (pending_months > 0 OR CAST (strftime('%s','now','-1 month') AS INT) >= fee_date*24*60*60)" +
             "ORDER BY first_name ASC,last_name ASC")
     fun pendingStudents():PagingSource<Int,NameWithFeeDate>
-
 
 
 }
