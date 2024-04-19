@@ -6,7 +6,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.testing.asSnapshot
 import com.example.myapplication.data.room.dao.NameWithFeeDate
-import com.example.myapplication.model.NameWithPendingMonth
+import com.example.myapplication.ui.home.model.HomeUiModel
+import com.example.myapplication.ui.home.model.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -35,7 +36,7 @@ class HomeViewModelTest {
     private val feeDate= LocalDate.now().minusMonths(2)
 
 
-    private lateinit var  homeViewModel :HomeViewModel
+    private lateinit var  homeViewModel : HomeViewModel
 
     private val student1= NameWithFeeDate(id=1,firstName="AA", lastName ="",classYear = 1, pendingMonths = 1, feeDate = feeDate)
     private val studentsSortedByName = listOf(student1,
@@ -43,13 +44,14 @@ class HomeViewModelTest {
         student1.copy(firstName = "BA"),
         student1.copy(firstName = "BB"))
     private val expectedPendingMonth = pending_month_calculator(feeDate)+student1.pendingMonths
-    private val expectedStudentSortedByName =NameWithPendingMonth.StudentItem(id=1,name="AA",classYear=1, pendingMonths = expectedPendingMonth)
+    private val expectedStudentSortedByName =
+        HomeUiModel.StudentItem(id=1,name="AA",classYear=1, pendingMonths = expectedPendingMonth)
 
     private val expectedStudentsSortedByName = listOf(
-        NameWithPendingMonth.SeparatorItem("A"),
+        HomeUiModel.SeparatorItem("A"),
         expectedStudentSortedByName,
         expectedStudentSortedByName.copy(name="AB"),
-        NameWithPendingMonth.SeparatorItem("B"),
+        HomeUiModel.SeparatorItem("B"),
         expectedStudentSortedByName.copy(name="BA"),
         expectedStudentSortedByName.copy(name="BB"))
 

@@ -4,34 +4,25 @@ import androidx.annotation.RestrictTo
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,106 +31,62 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
-import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.myapplication.model.NameWithPendingMonth
-import com.example.myapplication.model.student1
 import com.example.myapplication.ui.modifiers.circleBackground
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 
-@Composable
-fun StudentList(modifier: Modifier=Modifier, studentPagingDataFlow: Flow<PagingData<NameWithPendingMonth.StudentItem>>,
-                pendingAmount: Int, pendingCalculation: String,onPay: () -> Unit) {
-
-    val studentPagingItems = studentPagingDataFlow.collectAsLazyPagingItems()
-    var expandedAt by remember{ mutableIntStateOf(-1) }
-
-    LazyColumn {
-        items(count = studentPagingItems.itemCount) { index ->
-
-            val student = studentPagingItems[index]
-            val expanded by remember { derivedStateOf{index == expandedAt} }
-            student?.let {
-                Student(expanded = expanded,
-                    student = it,
-                    pendingAmount = pendingAmount,
-                    pendingCalculation = pendingCalculation,
-                    onPay = onPay,
-                    onExpandToggle = { expandedAt = if (expandedAt == index) -1
-                        else index})
-            }
-
-        }
-
-        if (studentPagingItems.loadState.append == LoadState.Loading) {
-            item {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun DeletableStudentList(modifier: Modifier=Modifier,studentPagingDataFlow: Flow<PagingData<NameWithPendingMonth.StudentItem>>,
-                         pendingAmount: Int, pendingCalculation: String,onPay: () -> Unit,onDelete:(Long) -> Unit) {
-    val studentPagingItems = studentPagingDataFlow.collectAsLazyPagingItems()
-    var expandedAt by remember{ mutableIntStateOf(-1) }
-    var deletingAt by remember{ mutableIntStateOf(-1) }
-    val deleteIcon :@Composable () -> Unit = {Icon(imageVector = Icons.Filled.Delete,contentDescription = null, tint = Color.Red)}
-
-    LazyColumn(modifier=modifier){
-
-        items(count = studentPagingItems.itemCount) { index ->
-
-            val student = studentPagingItems[index]
-            val expanded by remember { derivedStateOf{index == expandedAt} }
-            val draggableState = rememberAnchoredDraggableState()
-            LaunchedEffect(key1 = draggableState.isAnimationRunning){
-                deletingAt=index
-            }
-            LaunchedEffect(key1=deletingAt){
-                if(deletingAt != index) draggableState.snapTo(DragValue.DEFAULT)
-            }
-            SwipeDeleteItem(
-                draggableState = draggableState,
-                deleteIcon = deleteIcon,
-                onDelete = { student?.id?.let { onDelete(it) } }) {
-                student?.let {
-                    Student(expanded = expanded,
-                        student = it,
-                        pendingAmount = pendingAmount,
-                        pendingCalculation = pendingCalculation,
-                        onPay = onPay,
-                        onExpandToggle = { expandedAt = if (expandedAt == index) -1
-                        else index})
-                }
-            }
-
-
-        }
-
-    }
-
-
-}
-
-
+//@OptIn(ExperimentalFoundationApi::class)
+//@Composable
+//fun DeletableStudentList(modifier: Modifier=Modifier, studentPagingDataFlow: Flow<PagingData<HomeUiModel.StudentItem>>,
+//                         pendingAmount: Int, onPay: (Long) -> Unit, onDelete:(Long) -> Unit) {
+//    val studentPagingItems = studentPagingDataFlow.collectAsLazyPagingItems()
+//    var expandedAt by remember{ mutableIntStateOf(-1) }
+//    var deletingAt by remember{ mutableIntStateOf(-1) }
+//    val deleteIcon :@Composable () -> Unit = {Icon(imageVector = Icons.Filled.Delete,contentDescription = null, tint = Color.Red)}
+//
+//    LazyColumn(modifier=modifier){
+//
+//        items(count = studentPagingItems.itemCount) { index ->
+//
+//            val student = studentPagingItems[index]
+//            val expanded by remember { derivedStateOf{index == expandedAt} }
+//            val draggableState = rememberAnchoredDraggableState()
+//            LaunchedEffect(key1 = draggableState.isAnimationRunning){
+//                deletingAt=index
+//            }
+//            LaunchedEffect(key1=deletingAt){
+//                if(deletingAt != index) draggableState.snapTo(DragValue.DEFAULT)
+//            }
+//            SwipeDeleteItem(
+//                draggableState = draggableState,
+//                deleteIcon = deleteIcon,
+//                onDelete = { student?.id?.let { onDelete(it) } }) {
+//                student?.let {
+//                    HomeStudent(expanded = expanded,
+//                        student = it,
+//                        pendingAmount = pendingAmount,
+//                        onPay = onPay,
+//                        onExpandToggle = { expandedAt = if (expandedAt == index) -1
+//                        else index})
+//                }
+//            }
+//
+//
+//        }
+//
+//    }
+//
+//
+//}
 
 @Composable
-fun Student(modifier:Modifier=Modifier,expanded:Boolean, student: NameWithPendingMonth.StudentItem,
-                              pendingAmount: Int,pendingCalculation: String,
-                              onPay:() -> Unit,onExpandToggle:(Boolean)->Unit) {
+fun Student(modifier:Modifier=Modifier, expanded:Boolean,
+            name:String,
+            pendingMonths:Int,
+            pendingAmount: Int,
+            upcomingDays: Int? =null,
+            onPay:() -> Unit, onExpandToggle:(Boolean)->Unit) {
 
-    val isFeePending = student.pendingMonths > 0
+    val isFeePending = pendingMonths > 0
 
     Column(modifier=modifier.animateContentSize(
         animationSpec = spring(
@@ -147,17 +94,23 @@ fun Student(modifier:Modifier=Modifier,expanded:Boolean, student: NameWithPendin
             stiffness = Spring.StiffnessMedium
         )
     )) {
-        ListItem(headlineContent = {StudentName(student)},
+        ListItem(headlineContent = {StudentName(name)},
             leadingContent = { Icon(Icons.Default.Person, contentDescription = "Student") },
             trailingContent = {
 
-                if (isFeePending) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
 
-                        PendingMonthBadge(student)
+                    upcomingDays?.let { UpcomingDaysBadge(upcomingDays = it) }
+
+
+                    Spacer(Modifier.width(15.dp))
+                    if (isFeePending) {
+                        PendingMonthBadge(pendingMonths)
                         DropDownIcon(expanded = expanded, onToggle = onExpandToggle)
                     }
+
                 }
+
 
             }
         )
@@ -165,7 +118,6 @@ fun Student(modifier:Modifier=Modifier,expanded:Boolean, student: NameWithPendin
         if (expanded) {
             PendingFeeCard(
                 pendingAmount = pendingAmount,
-                pendingCalculation = pendingCalculation,
                 onPay = onPay
             )
 
@@ -175,27 +127,19 @@ fun Student(modifier:Modifier=Modifier,expanded:Boolean, student: NameWithPendin
 }
 
 @Composable
-fun PendingFeeCard(pendingAmount:Int,pendingCalculation:String,onPay:()->Unit) {
+fun PendingFeeCard(pendingAmount:Int,onPay:()->Unit) {
     Card {
         Row (modifier= Modifier
             .fillMaxWidth()
             .padding(5.dp),
             verticalAlignment = Alignment.CenterVertically){
-            Row {
-                Text(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .alignByBaseline(),
-                    text = "₹$pendingAmount",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier=Modifier.width(15.dp))
-                Text(
-                    modifier=Modifier.alignByBaseline(),
-                    text = pendingCalculation,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            Text(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .alignByBaseline(),
+                text = "₹$pendingAmount",
+                style = MaterialTheme.typography.titleLarge
+            )
             Spacer(Modifier.weight(1.0f))
             Button(onClick = onPay) {
                 Text(text="Pay",style= MaterialTheme.typography.titleLarge)
@@ -207,18 +151,27 @@ fun PendingFeeCard(pendingAmount:Int,pendingCalculation:String,onPay:()->Unit) {
 }
 
 @Composable
-fun StudentName(student:NameWithPendingMonth.StudentItem) {
+fun StudentName(name:String) {
     Text(
-        text = student.name,
+        text = name,
         style = MaterialTheme.typography.titleLarge
     )
 }
 @Composable
-fun PendingMonthBadge(student: NameWithPendingMonth.StudentItem) {
+fun PendingMonthBadge(pendingMonths: Int,modifier:Modifier=Modifier) {
     Text(
-        modifier = Modifier.circleBackground(color = Color.Red, padding = 1.dp),
-        text = "${student.pendingMonths}",
+        modifier = modifier.circleBackground(color = Color.Red, padding = 1.dp),
+        text = "$pendingMonths",
         style = MaterialTheme.typography.labelSmall
+    )
+}
+
+@Composable
+fun UpcomingDaysBadge(modifier:Modifier=Modifier,upcomingDays:Int) {
+    Text(
+        modifier=modifier,
+        text = "$upcomingDays",
+        style = MaterialTheme.typography.bodyLarge
     )
 }
 
@@ -235,12 +188,20 @@ fun DropDownIcon(expanded: Boolean,onToggle:(Boolean)->Unit) {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.TESTS)
-//@Preview
+@Preview
 @Composable
 fun StudentPreview() {
     var expanded by remember{mutableStateOf(true)}
-    Student(expanded=expanded ,student=student1, pendingAmount = 600, pendingCalculation = "",onPay={}, onExpandToggle = {expanded=!expanded})
+    Student(
+        expanded  = expanded,
+        name = "Abcd",
+        pendingMonths = 3,
+        upcomingDays = 3,
+        pendingAmount = 300,
+        onPay = {},
+        onExpandToggle = {expanded = !expanded}
+
+    )
 }
 
 //@Preview
@@ -254,7 +215,7 @@ fun DropDownIconPreview() {
 @RestrictTo(RestrictTo.Scope.TESTS)
 @Composable
 fun PendingMonthBadgePreview() {
-    PendingMonthBadge(student = student1)
+    PendingMonthBadge(3)
 }
 
 
@@ -266,7 +227,7 @@ fun PendingMonthBadgePreview() {
 //@Preview
 @Composable
 fun PendingFeeCardPreview() {
-    PendingFeeCard(600,"200x3", onPay = {})
+    PendingFeeCard(pendingAmount = 600, onPay = {})
 }
 
 //@Preview
@@ -284,22 +245,3 @@ fun PendingFeeCardPreview() {
 
 
 //@Preview
-@RestrictTo(RestrictTo.Scope.TESTS)
-@Composable
-fun StudentListPreview() {
-    val studentFlow=remember{MutableStateFlow(PagingData.from(List(10){student1}))}
-    StudentList(studentPagingDataFlow = studentFlow,
-        pendingAmount = 100,
-        pendingCalculation = "",onPay={})
-}
-
-@Preview
-@RestrictTo(RestrictTo.Scope.TESTS)
-@Composable
-fun DeletableStudentListPreview() {
-    val studentFlow=remember{MutableStateFlow(PagingData.from(List(10){student1}))}
-    DeletableStudentList(studentPagingDataFlow = studentFlow,
-        pendingAmount = 100,
-        pendingCalculation = "",onPay={},
-        onDelete={})
-}
