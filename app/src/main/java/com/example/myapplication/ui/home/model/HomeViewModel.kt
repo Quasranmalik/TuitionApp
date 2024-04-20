@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.home
+package com.example.myapplication.ui.home.model
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,7 +7,6 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.myapplication.data.student.StudentRepository
-import com.example.myapplication.model.NameWithPendingMonth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
@@ -28,9 +27,14 @@ class HomeViewModel  @Inject constructor(
 
 
 
-    private var sortField :StateFlow<SortField> = savedStateHandle.getStateFlow(
+    val pendingAmount:Int? = null
+
+    private var _sortField :StateFlow<SortField> = savedStateHandle.getStateFlow(
         key= SORT_FIELD_SAVED_STATE_KEY,initialValue = SortField.Name
     )
+
+    val sortField
+        get() = _sortField.value
 
    private var ascending :StateFlow<Boolean> = savedStateHandle.getStateFlow(
    key= ASCENDING_SAVED_STATE_KEY,initialValue = true)
@@ -39,20 +43,20 @@ class HomeViewModel  @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val students = combine(
-        sortField,
+        _sortField,
         ascending
     ){sortField, ascending->
         studentRepository.allStudent(10,sortField,ascending)
 
     }.flattenConcat() .map {studentPagingData ->
         studentPagingData.map {
-            NameWithPendingMonth.StudentItem(id=it.id,
+            HomeUiModel.StudentItem(id=it.id,
                 name=it.firstName+it.lastName,
                 classYear = it.classYear,
                 pendingMonths = it.pendingMonths + Period.between(it.feeDate, LocalDate.now()).months)
 
         }.insertSeparators { before, after ->
-            val description:String? = when(sortField.value){
+            val description:String? = when(_sortField.value){
                 SortField.Name -> when{
                     before == null -> after?.name?.take(1)?.uppercase()
                     before.name.first() != after?.name?.first() -> after?.name?.take(1)?.uppercase()
@@ -65,7 +69,7 @@ class HomeViewModel  @Inject constructor(
                 }
 
             }
-            description?.let { NameWithPendingMonth.SeparatorItem(it) }
+            description?.let { HomeUiModel.SeparatorItem(it) }
 
         }
 
@@ -74,9 +78,13 @@ class HomeViewModel  @Inject constructor(
 
 
     fun onSortChange(selectedSortField: SortField){
-        if (selectedSortField == sortField.value) savedStateHandle[ASCENDING_SAVED_STATE_KEY] = !ascending.value
+        if (selectedSortField == _sortField.value) savedStateHandle[ASCENDING_SAVED_STATE_KEY] = !ascending.value
         else {savedStateHandle[SORT_FIELD_SAVED_STATE_KEY] = selectedSortField
             savedStateHandle[ASCENDING_SAVED_STATE_KEY]=true}
+    }
+
+    fun getPaymentAmount(studentId:Long){
+        TODO("Not Yet Implemented")
     }
 }
 
