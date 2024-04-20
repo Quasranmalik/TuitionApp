@@ -46,7 +46,7 @@ class HomeViewModel  @Inject constructor(
         _sortField,
         ascending
     ){sortField, ascending->
-        studentRepository.allStudentWithPendingMonths(10,sortField,ascending)
+        studentRepository.allStudent(10,sortField,ascending)
 
     }.flattenConcat() .map {studentPagingData ->
         studentPagingData.map {

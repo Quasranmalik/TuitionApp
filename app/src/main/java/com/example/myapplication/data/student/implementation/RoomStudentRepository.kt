@@ -31,6 +31,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import javax.inject.Inject
 
 class RoomStudentRepository @Inject constructor(@ApplicationContext context: Context, private val studentDao : StudentDao,
@@ -41,23 +42,45 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
     private val workManager = WorkManager.getInstance(context)
 
-    override fun allStudentWithPendingMonths(
+    override fun allStudent(
         pageSize: Int,
         sortField: SortField,
         ascending: Boolean
     ): Flow<PagingData<NameWithFeeDate>> = Pager(
-        config = PagingConfig(pageSize = pageSize),
+        config = PagingConfig(pageSize = pageSize)
         ){
         when(sortField){
             SortField.Name -> when(ascending){
-                true -> studentDao.allStudentsWithLastPaidDateNameAscending()
-                false -> studentDao.allStudentsWithLastPaidDateNameDescending()
+                true -> studentDao.allStudentsNameAscending()
+                false -> studentDao.allStudentsNameDescending()
             }
             SortField.Class -> when(ascending){
-                true -> studentDao.allStudentsWithLastPaidDateClassAscending()
-                false -> studentDao.allStudentsWithLastPaidDateClassDescending()
+                true -> studentDao.allStudentsClassAscending()
+                false -> studentDao.allStudentsClassDescending()
             }
         }
+    }.flow
+
+    override fun upcomingStudents(
+        withinDays: Int,
+        pageSize: Int
+    ) = Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        val todayDate = LocalDate.now()
+        val today = todayDate.dayOfMonth
+        val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
+            val day = today + withinDays
+            if (day > lastDayOfMonth) day - lastDayOfMonth else day
+        }
+
+        studentDao.upcomingStudents(today,tillDay)
+    }.flow
+
+    override fun pendingStudents(pageSize:Int) = Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        studentDao.pendingStudents()
     }.flow
 
 
@@ -185,6 +208,7 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
          return workManager.getWorkInfosFlow(workQuery).map { it.isNotEmpty() }
 
     }
+
 
 
 }

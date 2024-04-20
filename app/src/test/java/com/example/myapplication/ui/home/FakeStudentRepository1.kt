@@ -10,12 +10,11 @@ import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import java.time.LocalDate
 
 class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDate>): StudentRepository {
 
 
-    override fun allStudentWithPendingMonths(
+    override fun allStudent(
         pageSize: Int,
         sortField: SortField,
         ascending: Boolean
@@ -78,6 +77,20 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
     override fun anyPendingTransaction(id: Long): Flow<Boolean> {
         TODO("Not yet implemented")
     }
+
+    override fun upcomingStudents(
+        withinDays: Int,
+        pageSize: Int
+    ): Flow<PagingData<NameWithFeeDate>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun pendingStudents(pageSize: Int): Flow<PagingData<NameWithFeeDate>> {
+        TODO("Not yet implemented")
+    }
+
+
+
 
 }
 
