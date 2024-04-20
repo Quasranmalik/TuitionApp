@@ -165,5 +165,6 @@ fun HomeStudentListPreview() {
     val studentFlow= remember { MutableStateFlow(PagingData.from(students)) }
     HomeStudentList(studentPagingDataFlow = studentFlow,
         pendingAmount = 100,
+        getPaymentAmount = {},
         onPay = {})
 }

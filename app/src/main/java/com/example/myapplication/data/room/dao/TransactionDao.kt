@@ -20,13 +20,13 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
 
-    @Query("Select * from   Transactions WHERE student_id=:sid ORDER BY paid_till_date DESC ")
-    fun forStudent(sid:Long) : PagingSource<Int, Transaction>
+    @Query("Select * from   Transactions WHERE student_id=:studentId ORDER BY paid_till_date DESC ")
+    fun forStudent(studentId:Long) : PagingSource<Int, Transaction>
 
     @Query("Select * from Transactions ORDER BY paid_till_date DESC")
     fun loadAllTransactions():PagingSource<Int, Transaction>
 
-    @Query("Select MAX(paid_till_date) FROM Transactions WHERE student_id = :sid ")
-    suspend fun lastPaidDateForStudent(sid:Long): LocalDate
+    @Query("Select MAX(paid_till_date) FROM Transactions WHERE student_id = :studentId ")
+    suspend fun lastPaidDateForStudent(studentId:Long): LocalDate
 
 }

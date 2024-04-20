@@ -8,6 +8,7 @@ import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
+import com.example.myapplication.ui.home.model.SortField
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -34,11 +35,15 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
     }
 
 
-    override suspend fun student(sid: Long): Student {
+    override suspend fun student(studentId: Long): Student {
         TODO("Not yet implemented")
     }
 
-    override fun transactionsForStudent(sid: Long, pageSize: Int): Flow<PagingData<Transaction>> {
+    override fun transactionsForStudent(studentId: Long, pageSize: Int): Flow<PagingData<Transaction>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getPendingAmount(studentId: Long): Int {
         TODO("Not yet implemented")
     }
 
@@ -74,7 +79,7 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
         TODO("Not yet implemented")
     }
 
-    override fun anyPendingTransaction(id: Long): Flow<Boolean> {
+    override fun anyPendingTransaction(studentId: Long): Flow<Boolean> {
         TODO("Not yet implemented")
     }
 

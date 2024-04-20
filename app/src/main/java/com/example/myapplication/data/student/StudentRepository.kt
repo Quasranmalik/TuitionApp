@@ -5,7 +5,7 @@ import com.example.myapplication.data.room.dao.NameWithFeeDate
 import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
-import com.example.myapplication.ui.home.SortField
+import com.example.myapplication.ui.home.model.SortField
 import kotlinx.coroutines.flow.Flow
 
 interface StudentRepository {
@@ -13,10 +13,11 @@ interface StudentRepository {
 
     suspend fun pendingFeeMonthHistoryOfStudent(sid: Long): List<FeeHistory>
 
-    suspend fun student(sid: Long): Student
+    suspend fun student(studentId: Long): Student
 
-     fun transactionsForStudent(sid: Long,pageSize: Int):Flow<PagingData<Transaction>>
+     fun transactionsForStudent(studentId: Long, pageSize: Int):Flow<PagingData<Transaction>>
 
+     suspend fun getPendingAmount(studentId:Long):Int
      suspend fun insertStudent(student: Student)
 
     suspend fun updateStudent(student: Student)
@@ -34,7 +35,7 @@ interface StudentRepository {
 
      suspend fun deleteFeeHistory(feeHistory: FeeHistory)
 
-     fun anyPendingTransaction(id:Long):Flow<Boolean>
+     fun anyPendingTransaction(studentId:Long):Flow<Boolean>
 
      fun upcomingStudents(withinDays:Int,pageSize: Int):Flow<PagingData<NameWithFeeDate>>
 
