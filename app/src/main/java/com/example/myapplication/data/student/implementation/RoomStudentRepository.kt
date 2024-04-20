@@ -11,7 +11,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import com.example.myapplication.Operation
-import com.example.myapplication.data.student.StudentRepository
 import com.example.myapplication.data.room.dao.FeeHistoryDao
 import com.example.myapplication.data.room.dao.NameWithFeeDate
 import com.example.myapplication.data.room.dao.StudentDao
@@ -19,7 +18,8 @@ import com.example.myapplication.data.room.dao.TransactionDao
 import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
-import com.example.myapplication.ui.home.SortField
+import com.example.myapplication.data.student.StudentRepository
+import com.example.myapplication.ui.home.model.SortField
 import com.example.myapplication.worker.FeeHistoryWorker
 import com.example.myapplication.worker.StudentWorker
 import com.example.myapplication.worker.TransactionWorker
@@ -31,7 +31,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.VisibleForTesting
 import java.time.LocalDate
+import java.time.Period
 import javax.inject.Inject
 
 class RoomStudentRepository @Inject constructor(@ApplicationContext context: Context, private val studentDao : StudentDao,
@@ -84,30 +86,36 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
     }.flow
 
 
-    override suspend fun pendingFeeMonthHistoryOfStudent(sid: Long):List<FeeHistory> = withContext(Dispatchers.IO){
+    private suspend fun pendingFeeMonthHistoryOfStudent(studentId: Long, lastPaidDate:LocalDate?=null):List<FeeHistory> = withContext(Dispatchers.IO){
         coroutineScope {
-            val lastPaidDate = transactionDao.lastPaidDateForStudent(sid)
+            val _lastPaidDate = lastPaidDate ?:transactionDao.lastPaidDateForStudent(studentId)
             listOf(
                 async{
-                feeHistoryDao.currentFeeHistory(sid,lastPaidDate)
+                feeHistoryDao.currentFeeHistory(studentId,_lastPaidDate)
                 }.await()
             ) +
                     async{
-                        feeHistoryDao.feeHistoryAfterLastPaidDate(sid, lastPaidDate )
+                        feeHistoryDao.feeHistoryAfterLastPaidDate(studentId, _lastPaidDate )
                     }.await()
         }
     }
 
+    override suspend fun getPendingAmount(studentId: Long): Int = withContext(Dispatchers.IO){
+        val lastPaidDate = transactionDao.lastPaidDateForStudent(studentId)
 
 
-
-    override suspend fun student(sid:Long)= withContext(Dispatchers.IO){
-        studentDao.student(sid)
+        getPendingAmount(pendingFeeMonthHistoryOfStudent(studentId,lastPaidDate),lastPaidDate)
     }
 
-    override  fun transactionsForStudent(sid: Long,pageSize: Int) = Pager(
+
+
+    override suspend fun student(studentId:Long)= withContext(Dispatchers.IO){
+        studentDao.student(studentId)
+    }
+
+    override  fun transactionsForStudent(studentId: Long, pageSize: Int) = Pager(
         config = PagingConfig( pageSize = pageSize )){
-            transactionDao.forStudent(sid)
+            transactionDao.forStudent(studentId)
         }.flow
 
     override suspend fun insertStudent(student: Student) {
@@ -199,9 +207,9 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         )
     }
 
-    override fun anyPendingTransaction(id: Long): Flow<Boolean> {
+    override fun anyPendingTransaction(studentId: Long): Flow<Boolean> {
         val workQuery = WorkQuery.Builder
-            .fromTags(listOf("$id"))
+            .fromTags(listOf("$studentId"))
             .addStates(listOf(WorkInfo.State.ENQUEUED,WorkInfo.State.RUNNING))
             .build()
 
@@ -212,4 +220,22 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
 
 }
+@VisibleForTesting
+fun getPendingAmount(pendingFeeHistory: List<FeeHistory>, lastPaidDate: LocalDate?,
+                             today:LocalDate = LocalDate.now()):Int{
+    if (pendingFeeHistory.isEmpty()) return 0
 
+    var fee:Int;var startFeeDate:LocalDate;var endFeeDate:LocalDate
+    var pendingFee = 0
+    for(index in 0 until pendingFeeHistory.count() ) {
+        with(pendingFeeHistory[index]){
+            fee=this.fee
+            startFeeDate = if (index == 0 ) lastPaidDate?:this.joinDate else this.joinDate
+        }
+        endFeeDate = if (index == pendingFeeHistory.count()-1) today else pendingFeeHistory[index +1].joinDate
+
+        pendingFee += Period.between(startFeeDate,endFeeDate).months * fee
+    }
+
+    return pendingFee
+}

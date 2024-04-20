@@ -30,7 +30,7 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
             )
         )
     )
-    override suspend fun pendingFeeMonthHistoryOfStudent(sid: Long): List<FeeHistory> {
+    suspend fun pendingFeeMonthHistoryOfStudent(sid: Long): List<FeeHistory> {
         TODO("Not yet implemented")
     }
 
