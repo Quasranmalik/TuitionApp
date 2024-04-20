@@ -1,5 +1,8 @@
 package com.example.myapplication.ui.home.model
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Period
 import javax.inject.Inject
@@ -27,7 +31,8 @@ class HomeViewModel  @Inject constructor(
 
 
 
-    val pendingAmount:Int? = null
+    var pendingAmount by mutableStateOf<Int?>(null)
+    private set
 
     private var _sortField :StateFlow<SortField> = savedStateHandle.getStateFlow(
         key= SORT_FIELD_SAVED_STATE_KEY,initialValue = SortField.Name
@@ -84,7 +89,9 @@ class HomeViewModel  @Inject constructor(
     }
 
     fun getPaymentAmount(studentId:Long){
-        TODO("Not Yet Implemented")
+        viewModelScope.launch {
+            pendingAmount = studentRepository.getPendingAmount(studentId)
+        }
     }
 }
 

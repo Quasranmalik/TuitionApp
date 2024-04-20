@@ -140,7 +140,7 @@ class StudentDataBaseTest {
     @Test
     fun fee_history_dao_last_paid_date()=runTest{
         insert_data()
-        assertThat(transactionDao.lastPaidDateForStudent(sid=1)).isEqualTo(LocalDate.of(2022,1,1))
+        assertThat(transactionDao.lastPaidDateForStudent(studentId=1)).isEqualTo(LocalDate.of(2022,1,1))
     }
 
 
