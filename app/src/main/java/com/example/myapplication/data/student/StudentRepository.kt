@@ -7,8 +7,16 @@ import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.ui.home.model.SortField
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface StudentRepository {
+
+    val upcomingDays: StateFlow<Int>
+
+    fun onChangeUpcomingDays(days:Int)
+
+    val upcomingStudents : Flow<PagingData<NameWithFeeDate>>
+
     fun allStudent(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithFeeDate>>
 
 
@@ -36,7 +44,6 @@ interface StudentRepository {
 
      fun anyPendingTransaction(studentId:Long):Flow<Boolean>
 
-     fun upcomingStudents(withinDays:Int,pageSize: Int):Flow<PagingData<NameWithFeeDate>>
 
      fun pendingStudents(pageSize:Int):Flow<PagingData<NameWithFeeDate>>
 
