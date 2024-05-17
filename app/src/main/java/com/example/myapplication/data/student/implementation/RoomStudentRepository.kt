@@ -26,13 +26,9 @@ import com.example.myapplication.worker.TransactionWorker
 import com.example.myapplication.worker.toWorkData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.VisibleForTesting
@@ -48,31 +44,11 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
     private val workManager = WorkManager.getInstance(context)
 
-    private val _upcomingDays = MutableStateFlow(5)
-
-    override val upcomingDays = _upcomingDays.asStateFlow()
-
-    override fun onChangeUpcomingDays(days: Int) {
-        _upcomingDays.value = days
-    }
 
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override val upcomingStudents = upcomingDays.flatMapLatest { upcomingDays ->
-        Pager(
-            config = PagingConfig(pageSize = 10)
-        ){
-            val todayDate = LocalDate.now()
-            val today = todayDate.dayOfMonth
-            val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
-                val day = today + upcomingDays
-                if (day > lastDayOfMonth) day - lastDayOfMonth else day
-            }
 
-            studentDao.upcomingStudents(today,tillDay)
-        }.flow
 
-    }
+
 
     override fun allStudent(
         pageSize: Int,
@@ -99,6 +75,19 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         config =PagingConfig(pageSize=pageSize)
     ){
         studentDao.pendingStudents()
+    }.flow
+
+    override fun upcomingStudents(pageSize: Int, days: Int)= Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        val todayDate = LocalDate.now()
+        val today = todayDate.dayOfMonth
+        val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
+            val day = today + days
+            if (day > lastDayOfMonth) day - lastDayOfMonth else day
+        }
+
+        studentDao.upcomingStudents(today,tillDay)
     }.flow
 
 
