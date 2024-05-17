@@ -1,5 +1,7 @@
-package com.example.myapplication.ui.home.model
+package com.example.myapplication.ui.home
 
+import androidx.annotation.RestrictTo
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,7 +27,7 @@ private const val SORT_FIELD_SAVED_STATE_KEY = "SortFieldKey"
 private const val ASCENDING_SAVED_STATE_KEY = "AscendingKey"
 
 @HiltViewModel
-class HomeViewModel  @Inject constructor(
+internal class HomeViewModel  @Inject constructor(
     private val savedStateHandle:SavedStateHandle,
     private val studentRepository: StudentRepository):ViewModel() {
 
@@ -55,10 +57,15 @@ class HomeViewModel  @Inject constructor(
 
     }.flattenConcat() .map {studentPagingData ->
         studentPagingData.map {
-            HomeUiModel.StudentItem(id=it.id,
-                name=it.firstName+it.lastName,
+            HomeUiModel.StudentItem(
+                id = it.id,
+                name = it.firstName + it.lastName,
                 classYear = it.classYear,
-                pendingMonths = it.pendingMonths + Period.between(it.feeDate, LocalDate.now()).months)
+                pendingMonths = it.pendingMonths + Period.between(
+                    it.feeDate,
+                    LocalDate.now()
+                ).months
+            )
 
         }.insertSeparators { before, after ->
             val description:String? = when(_sortField.value){
@@ -97,3 +104,26 @@ class HomeViewModel  @Inject constructor(
 
 
 enum class SortField  { Name,Class }
+
+@Stable
+ internal sealed class HomeUiModel{
+     data class StudentItem(val id:Long, val name:String, val classYear:Int=1,
+                       val pendingMonths:Int): HomeUiModel()
+     data class SeparatorItem(val description:String): HomeUiModel()
+ }
+
+@RestrictTo(RestrictTo.Scope.TESTS)
+internal val student1 = HomeUiModel.StudentItem(id = 1, name = "Quasran Malik", pendingMonths = 4)
+
+@RestrictTo(RestrictTo.Scope.TESTS)
+internal val students = listOf(
+    student1,
+    HomeUiModel.SeparatorItem("A"),
+    HomeUiModel.StudentItem(id = 2, name = "Apple", pendingMonths = 1),
+    HomeUiModel.SeparatorItem("M"),
+    HomeUiModel.StudentItem(id = 2, name = "Mango", pendingMonths = 3),
+    HomeUiModel.SeparatorItem("B"),
+    HomeUiModel.StudentItem(id = 3, name = "Banana", pendingMonths = 1),
+    HomeUiModel.SeparatorItem("P"),
+    HomeUiModel.StudentItem(id = 4, name = "PineApple", pendingMonths = 0)
+)

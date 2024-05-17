@@ -19,7 +19,7 @@ import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
-import com.example.myapplication.ui.home.model.SortField
+import com.example.myapplication.ui.home.SortField
 import com.example.myapplication.worker.FeeHistoryWorker
 import com.example.myapplication.worker.StudentWorker
 import com.example.myapplication.worker.TransactionWorker
