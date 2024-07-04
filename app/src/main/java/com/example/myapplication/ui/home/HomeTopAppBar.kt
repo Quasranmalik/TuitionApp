@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.ui.home.model.SortField
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +27,7 @@ fun HomeTopAppBar(sortField: SortField, onSortChange:(SortField) ->Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SortDropDown(modifier:Modifier=Modifier,sortField: SortField, onSortChange:(SortField) -> Unit) {
+fun SortDropDown(modifier:Modifier=Modifier, sortField: SortField, onSortChange:(SortField) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         modifier=modifier,

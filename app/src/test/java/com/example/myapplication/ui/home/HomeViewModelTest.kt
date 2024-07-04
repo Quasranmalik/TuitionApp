@@ -6,8 +6,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.testing.asSnapshot
 import com.example.myapplication.data.room.dao.NameWithFeeDate
-import com.example.myapplication.ui.home.model.HomeUiModel
-import com.example.myapplication.ui.home.model.HomeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher

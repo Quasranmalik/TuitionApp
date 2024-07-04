@@ -19,7 +19,7 @@ import com.example.myapplication.data.room.model.FeeHistory
 import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
-import com.example.myapplication.ui.home.model.SortField
+import com.example.myapplication.ui.home.SortField
 import com.example.myapplication.worker.FeeHistoryWorker
 import com.example.myapplication.worker.StudentWorker
 import com.example.myapplication.worker.TransactionWorker
@@ -44,6 +44,12 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
 
     private val workManager = WorkManager.getInstance(context)
 
+
+
+
+
+
+
     override fun allStudent(
         pageSize: Int,
         sortField: SortField,
@@ -63,26 +69,25 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         }
     }.flow
 
-    override fun upcomingStudents(
-        withinDays: Int,
-        pageSize: Int
-    ) = Pager(
-        config =PagingConfig(pageSize=pageSize)
-    ){
-        val todayDate = LocalDate.now()
-        val today = todayDate.dayOfMonth
-        val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
-            val day = today + withinDays
-            if (day > lastDayOfMonth) day - lastDayOfMonth else day
-        }
 
-        studentDao.upcomingStudents(today,tillDay)
-    }.flow
 
     override fun pendingStudents(pageSize:Int) = Pager(
         config =PagingConfig(pageSize=pageSize)
     ){
         studentDao.pendingStudents()
+    }.flow
+
+    override fun upcomingStudents(pageSize: Int, days: Int)= Pager(
+        config =PagingConfig(pageSize=pageSize)
+    ){
+        val todayDate = LocalDate.now()
+        val today = todayDate.dayOfMonth
+        val tillDay = todayDate.lengthOfMonth().let { lastDayOfMonth ->
+            val day = today + days
+            if (day > lastDayOfMonth) day - lastDayOfMonth else day
+        }
+
+        studentDao.upcomingStudents(today,tillDay)
     }.flow
 
 
