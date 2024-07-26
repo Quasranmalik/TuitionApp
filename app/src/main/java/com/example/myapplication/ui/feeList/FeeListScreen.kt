@@ -1,5 +1,7 @@
-package com.example.myapplication.ui.FeeList
+package com.example.myapplication.ui.feeList
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,7 +50,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.myapplication.data.student.implementation.advanceMonths
+import com.example.myapplication.data.student.implementation.dueMonths
+import com.example.myapplication.data.student.implementation.month1
+import com.example.myapplication.ui.model.PaymentMonth
 import com.example.myapplication.ui.payment.PaymentTextItem
+import com.example.myapplication.ui.util.monthsBetween
+import java.time.Month
+import java.time.YearMonth
 import java.util.Locale
 
 @Composable
@@ -59,81 +69,159 @@ fun MonthFeeScreen() {
 
 
 @Composable
-fun MonthList(dueMonths:List<PaymentMonth>, advanceMonths:List<PaymentMonth> = emptyList(), edit:Boolean,
-              increasedFee:String, onIncreasedFeeChange : (String) -> Unit,
-              feeIncreaseAtProvider:() -> Int, feeIncreaseAtChanged :(Int) -> Unit,
-              lazyListState: LazyListState ) {
-
-
-
-
+fun MonthList(
+    dueMonths: List<PaymentMonth>,
+    advanceMonths: List<PaymentMonth> = emptyList(),
+    edit: Boolean,
+    feeIncreaseMonthProvider: () -> YearMonth,
+    onFeeIncreaseMonthChange: (YearMonth) -> Unit,
+    lazyListState: LazyListState
+) {
 
 
     LazyColumn(state=lazyListState){
-       itemsIndexed(items=dueMonths){index,paymentMonth ->
-           val monthState by remember{ derivedStateOf { if (index <  feeIncreaseAtProvider()) MonthState.DECREASE
-           else if (index == feeIncreaseAtProvider()) MonthState.INCREASE_ON
-           else MonthState.INCREASE
-           }}
-           MonthItem(monthState = monthState,  month = paymentMonth.month.getDisplayName(java.time.format.TextStyle.FULL,
-               Locale.US), fee =paymentMonth.fee , edit =edit , onEdit = {})
-       }
 
-       itemsIndexed(items=advanceMonths){index,paymentMonth ->
+        dueMonths(
+            edit =edit,
+            dueMonths = dueMonths,
+            feeIncreaseMonthProvider = feeIncreaseMonthProvider ,
+            onFeeIncreaseMonthChange = onFeeIncreaseMonthChange
 
-           val monthState by remember{ derivedStateOf { if (index + dueMonths.size <  feeIncreaseAtProvider()) MonthState.DECREASE
-           else if (index + dueMonths.size== feeIncreaseAtProvider()) MonthState.INCREASE_ON
-           else MonthState.INCREASE
-           }}
-           if(index==0){
-               PaymentTextItem(text = "Advance")
-           }
+        )
 
-           MonthItem(monthState = monthState, month = paymentMonth.month.getDisplayName(java.time.format.TextStyle.FULL,
-               Locale.US), fee =paymentMonth.fee , edit =edit , onEdit = {})
-
-
-       }
+        advanceMonths(
+            edit = edit,
+            advanceMonths = advanceMonths,
+            feeIncreaseMonthProvider = feeIncreaseMonthProvider,
+            onFeeIncreaseMonthChange = onFeeIncreaseMonthChange
+        )
    }
 
 }
+
+@Composable
+private fun MonthItem(
+    edit: Boolean,
+    monthState: MonthState,
+    paymentMonth: PaymentMonth,
+    onFeeIncreaseMonthChange: (YearMonth) -> Unit
+) {
+
+    val month = getDisplayText(paymentMonth)
+    val fee = "₹${paymentMonth.fee}"
+    ListItem(leadingContent = { Text(text = fee, fontWeight = FontWeight.Bold) },
+        headlineContent = { Text(text = month, fontWeight = FontWeight.ExtraBold) },
+        colors = ListItemDefaults.colors(
+            containerColor = monthState.containerColor,
+            leadingIconColor = Color(red = 0, green = 0, blue = 0)
+        ),
+
+
+        trailingContent = {
+            Surface(
+                shape = CircleShape, color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                IconButton(
+                    onClick = {onFeeIncreaseMonthChange(paymentMonth.month)},
+                    enabled = edit,
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = monthState.trailingIconColor)
+                ) {
+                    Icon(imageVector = monthState.trailingIcon, contentDescription = "edit")
+
+                }
+
+
+            }
+        }
+
+    )
+}
+
+private fun LazyListScope.dueMonths(
+    edit: Boolean,
+    dueMonths: List<PaymentMonth>,
+    feeIncreaseMonthProvider: () -> YearMonth,
+    onFeeIncreaseMonthChange: (YearMonth) -> Unit
+) {
+
+    itemsIndexed(items=dueMonths){index,paymentMonth ->
+        val monthState by remember{
+            derivedStateOf {
+                val feeIncreaseMonthIndex = monthsBetween(
+                    dueMonths[0].month.atDay(1),
+                    feeIncreaseMonthProvider().atDay(1)
+                )
+                when{
+                    index < feeIncreaseMonthIndex -> MonthState.DECREASE
+                    index == feeIncreaseMonthIndex -> MonthState.INCREASE_ON
+                    else -> MonthState.INCREASE
+                }
+
+
+            }
+        }
+        MonthItem(
+            edit =edit,
+            monthState = monthState,
+            paymentMonth = paymentMonth,
+            onFeeIncreaseMonthChange = onFeeIncreaseMonthChange
+        )
+    }
+
+
+}
+
+private fun LazyListScope.advanceMonths(
+    edit: Boolean,
+    advanceMonths: List<PaymentMonth>,
+    feeIncreaseMonthProvider: () -> YearMonth,
+    onFeeIncreaseMonthChange: (YearMonth) -> Unit
+){
+
+
+    itemsIndexed(items = advanceMonths){index,advanceMonth ->
+        val monthState by remember{ derivedStateOf {
+
+            val feeIncreaseMonthIndex = monthsBetween(
+                advanceMonths[0].month.atDay(1),feeIncreaseMonthProvider().atDay(1))
+
+            when{
+                index < feeIncreaseMonthIndex -> MonthState.DECREASE
+                index == feeIncreaseMonthIndex -> MonthState.INCREASE_ON
+                else -> MonthState.INCREASE
+            }
+        }
+        }
+
+        if (index ==0){
+            PaymentTextItem(text = "Advance")
+        }
+
+        MonthItem(edit = edit,
+            monthState = monthState ,
+            paymentMonth = advanceMonth,
+            onFeeIncreaseMonthChange = onFeeIncreaseMonthChange)
+
+    }
+
+}
+fun getDisplayText(paymentMonth: PaymentMonth) = "${paymentMonth.month.month.getDisplayName(
+    java.time.format.TextStyle.FULL,
+    Locale.US)} " +
+        "${paymentMonth.month.year}"
 
 @Preview
 @Composable
 fun MonthListPreview() {
 
-    val mockMonthList = remember{List(5){ PaymentMonth() } }
 
     MonthList(
-        dueMonths = mockMonthList,
-        advanceMonths = mockMonthList,
-        edit =true ,
-        feeIncreaseAtProvider = { 6 },
-        lazyListState = rememberLazyListState() ,
-        feeIncreaseAtChanged = {},
-        increasedFee = "",
-        onIncreasedFeeChange = {}
-    )
-}
-
-@Composable
-fun MonthItem(monthState: MonthState, month:String, fee:Int, edit :Boolean, onEdit:() -> Unit) {
-    ListItem( leadingContent = { Text(text=" \u20B9 $fee", fontWeight = FontWeight.Bold) },
-        headlineContent = { Text(text=month,fontWeight= FontWeight.ExtraBold) },
-        colors= ListItemDefaults.colors(containerColor = monthState.containerColor,
-            leadingIconColor = Color(red=0,green=0,blue=0)),
-
-
-        trailingContent = { Surface(
-            shape= CircleShape,color= MaterialTheme.colorScheme.surfaceVariant) {
-            IconButton(onClick = onEdit,enabled=edit,colors=IconButtonDefaults.iconButtonColors(contentColor = monthState.trailingIconColor)) {
-                Icon(imageVector = monthState.trailingIcon, contentDescription = "edit")
-
-            }
-
-
-        }}
-
+        dueMonths = dueMonths,
+        advanceMonths = advanceMonths,
+        edit =true,
+        feeIncreaseMonthProvider = { YearMonth.of(2023, Month.MARCH) },
+        onFeeIncreaseMonthChange = {},
+        lazyListState = rememberLazyListState()
     )
 }
 
@@ -141,11 +229,15 @@ fun MonthItem(monthState: MonthState, month:String, fee:Int, edit :Boolean, onEd
 
 
 
-//@Preview
+
+
+@Preview
 @Composable
 fun MonthItemPreview() {
     var edit by remember{mutableStateOf(true)}
-    MonthItem(monthState = MonthState.INCREASE_ON, month = "", fee =500 , edit =edit,onEdit={edit=!edit} )
+    MonthItem(
+        edit =edit, monthState = MonthState.INCREASE_ON, paymentMonth = month1,
+        onFeeIncreaseMonthChange ={edit=!edit})
     
 }
 
