@@ -237,7 +237,26 @@ fun getPendingAmount(pendingFeeHistory: List<FeeHistory>, lastPaidDate: LocalDat
             fee=this.fee
             startFeeDate = if (index == 0 ) lastPaidDate?:this.joinDate else this.joinDate
         }
-        endFeeDate = if (index == pendingFeeHistory.count()-1) today else pendingFeeHistory[index +1].joinDate
+        if (fee ==0) continue
+
+        if(index == pendingFeeHistory.count()-1) {
+            endFeeDate = today
+            pendingFee +=  monthsBetween(startFeeDate,endFeeDate)* fee
+
+        }
+        else{
+            val nextJoinDate = pendingFeeHistory[index +1].joinDate
+             if (nextJoinDate < today ){
+                 endFeeDate = nextJoinDate
+                 pendingFee += monthsBetween(startFeeDate,endFeeDate) * fee
+             }
+            else{
+                endFeeDate = today
+                 pendingFee +=  monthsBetween(startFeeDate,endFeeDate)* fee
+                 break
+             }
+
+        }
 
         pendingFee += Period.between(startFeeDate,endFeeDate).months * fee
     }
