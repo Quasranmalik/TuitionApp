@@ -113,15 +113,15 @@ class StudentDataBaseTest {
     fun student_dao_load_fee_history_after_last_paid_date() =runTest{
         insert_data()
         launch{
-            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(sid=1)).hasSize(1).first()
+            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(studentId =1)).hasSize(1).first()
             .isEqualTo(feeHistories[3]) }
         launch{
-            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(sid=1, lastPaidDate = LocalDate.of(2022,1,1))).hasSize(1).first()
+            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(studentId =1, lastPaidDate = LocalDate.of(2022,1,1))).hasSize(1).first()
                 .isEqualTo(feeHistories[3])
         }
 
         launch{
-            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(sid=1, lastPaidDate = LocalDate.of(2021,1,1)))
+            assertThat(feeHistoryDao.feeHistoryAfterLastPaidDate(studentId =1, lastPaidDate = LocalDate.of(2021,1,1)))
                 .containsExactlyInAnyOrderElementsOf(feeHistories.subList(2,4))
         }
     }
@@ -131,7 +131,7 @@ class StudentDataBaseTest {
         insert_data()
 
         runBlocking {
-            assertThat(feeHistoryDao.currentFeeHistory(sid=1, lastPaidDate = LocalDate.of(2022,1,1))).
+            assertThat(feeHistoryDao.currentFeeHistory(studentId =1, lastPaidDate = LocalDate.of(2022,1,1))).
             isEqualTo(feeHistories[2])
         }
 

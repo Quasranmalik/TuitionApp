@@ -10,6 +10,7 @@ import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.data.student.StudentRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.time.LocalDate
 
 class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDate>): StudentRepository {
 
@@ -67,6 +68,21 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
     }
 
     override suspend fun insertFeeHistory(feeHistory: FeeHistory) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun pendingFeeHistory(studentId: Long): List<FeeHistory> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun pendingFeeHistory(
+        studentId: Long,
+        lastPaidDate: LocalDate?
+    ): List<FeeHistory> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun advanceFeeHistory(studentId: Long): List<FeeHistory> {
         TODO("Not yet implemented")
     }
 

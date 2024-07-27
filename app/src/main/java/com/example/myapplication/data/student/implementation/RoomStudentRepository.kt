@@ -27,7 +27,6 @@ import com.example.myapplication.worker.toWorkData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -90,26 +89,37 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
         studentDao.upcomingStudents(today,tillDay)
     }.flow
 
+    override suspend fun pendingFeeHistory(studentId: Long): List<FeeHistory> = withContext(Dispatchers.IO){
+        val lastPaidDate = transactionDao.lastPaidDateForStudent(studentId)
 
-    private suspend fun pendingFeeMonthHistoryOfStudent(studentId: Long, lastPaidDate:LocalDate?=null):List<FeeHistory> = withContext(Dispatchers.IO){
-        coroutineScope {
-            val _lastPaidDate = lastPaidDate ?:transactionDao.lastPaidDateForStudent(studentId)
-            listOf(
-                async{
-                feeHistoryDao.currentFeeHistory(studentId,_lastPaidDate)
-                }.await()
-            ) +
-                    async{
-                        feeHistoryDao.feeHistoryAfterLastPaidDate(studentId, _lastPaidDate )
-                    }.await()
+        val currentFeeHistory = async{
+            feeHistoryDao.currentFeeHistory(studentId,lastPaidDate)
         }
+        val pendingFeeHistory = async{
+            feeHistoryDao.pendingFeeHistoryAfterLastPaidDate(studentId=studentId,today=LocalDate.now(), lastPaidDate = lastPaidDate)
+        }
+        listOf(currentFeeHistory.await()) + pendingFeeHistory.await()
+    }
+    override suspend fun pendingFeeHistory(studentId: Long, lastPaidDate:LocalDate?):List<FeeHistory> = withContext(Dispatchers.IO){
+        val _lastPaidDate = lastPaidDate ?:transactionDao.lastPaidDateForStudent(studentId)
+        val currentFeeHistory = async{
+            feeHistoryDao.currentFeeHistory(studentId,_lastPaidDate)
+        }
+        val pendingFeeHistory = async{
+            feeHistoryDao.pendingFeeHistoryAfterLastPaidDate(studentId=studentId,today=LocalDate.now(), lastPaidDate = _lastPaidDate)
+        }
+        listOf(currentFeeHistory.await()) + pendingFeeHistory.await()
+    }
+
+    override suspend fun advanceFeeHistory(studentId: Long): List<FeeHistory> = withContext(Dispatchers.IO){
+        feeHistoryDao.advanceFeeHistory(studentId = studentId,today = LocalDate.now())
     }
 
     override suspend fun getPendingAmount(studentId: Long): Int = withContext(Dispatchers.IO){
         val lastPaidDate = transactionDao.lastPaidDateForStudent(studentId)
 
 
-        getPendingAmount(pendingFeeMonthHistoryOfStudent(studentId,lastPaidDate),lastPaidDate)
+        getPendingAmount(pendingFeeHistory(studentId,lastPaidDate),lastPaidDate)
     }
 
 

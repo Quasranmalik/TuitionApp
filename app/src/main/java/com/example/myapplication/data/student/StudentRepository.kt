@@ -7,10 +7,9 @@ import com.example.myapplication.data.room.model.Student
 import com.example.myapplication.data.room.model.Transaction
 import com.example.myapplication.ui.home.SortField
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 interface StudentRepository {
-
-
 
 
     fun allStudent(pageSize: Int, sortField: SortField, ascending:Boolean): Flow<PagingData<NameWithFeeDate>>
@@ -34,7 +33,12 @@ interface StudentRepository {
 
     suspend fun insertFeeHistory(feeHistory: FeeHistory)
 
+    suspend fun pendingFeeHistory(studentId:Long):List<FeeHistory>
+
+    suspend fun pendingFeeHistory(studentId: Long,lastPaidDate: LocalDate?):List<FeeHistory>
+    suspend fun advanceFeeHistory(studentId:Long):List<FeeHistory>
      suspend fun updateFeeHistory(feeHistory: FeeHistory)
+
 
      suspend fun deleteFeeHistory(feeHistory: FeeHistory)
 
@@ -44,8 +48,5 @@ interface StudentRepository {
      fun pendingStudents(pageSize:Int):Flow<PagingData<NameWithFeeDate>>
 
      fun upcomingStudents(pageSize: Int,days: Int) : Flow<PagingData<NameWithFeeDate>>
-
-
-
 
 }
