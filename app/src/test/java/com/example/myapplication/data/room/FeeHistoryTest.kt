@@ -1,9 +1,6 @@
 package com.example.myapplication.data.room
 
 import android.content.Context
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.testing.TestPager
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,24 +17,24 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDate
-
 @RunWith(AndroidJUnit4::class)
-class StudentDaoPendingStudentTest {
+class StudentDaoPendingFeeHistoryAfterLastPaidDateTest {
 
     private lateinit var db : StudentDatabase
     private lateinit var transactionDao: TransactionDao
     private lateinit var studentDao: StudentDao
     private lateinit var feeHistoryDao: FeeHistoryDao
 
-    private val students = listOf(Student(id=1,firstName="A",classYear=1,
-        pendingMonths = 0),
-        Student(id=2,firstName="B",classYear=1, pendingMonths = 1),
-        Student(id=3,firstName="C",classYear=1, pendingMonths = 0))
+    val student = Student(id=1,firstName="A",classYear=1,
+        pendingMonths = 0)
 
-    private val transactions = listOf(
-        Transaction(sid=1, paidTillDate = LocalDate.now().minusMonths(1),month=1),
-        Transaction(sid=2,paidTillDate = LocalDate.now().minusDays(15),month=1),
-        Transaction(sid=3,paidTillDate = LocalDate.now().minusDays(15),month=1))
+    private val feeHistory = List(12){ index ->
+        FeeHistory(sid =1 ,joinDate = LocalDate.of(2020,index+1,1),fee = (index+1)*100)
+    }
+
+    private val lastPaidDate =LocalDate.of(2020,6,1)
+    private val transaction = Transaction(sid =1 ,paidTillDate = lastPaidDate,month = 6)
+    private val today = LocalDate.of(2020,10,1)
 
     @Before
     fun setUp() {
@@ -50,23 +47,31 @@ class StudentDaoPendingStudentTest {
         feeHistoryDao= db.feeHistoryDao()
 
     }
-
     @After
     fun closeDb(){
         db.close()
     }
 
-    private suspend fun insert_data(){
-        students.forEach { studentDao.insert(it) }
-        transactions.forEach { transactionDao.insert(it) }
-        feeHistoryDao.insert(FeeHistory(sid=2, joinDate = LocalDate.now(),fee=100))
+    private suspend fun insertData(){
+        studentDao.insert(student)
+        transactionDao.insert(transaction)
+        feeHistory.forEach{feeHistoryDao.insert(it)}
+    }
+
+    @Test
+    fun student_dao_pending_fee_history_after_last_paid_date_test() = runTest{
+        insertData()
+        assertThat(feeHistoryDao.pendingFeeHistoryAfterLastPaidDate(sid=1, today = today))
+            .isEqualTo(feeHistory.subList(6,9))
+        assertThat(feeHistoryDao.pendingFeeHistoryAfterLastPaidDate(sid=1, today = today, lastPaidDate = lastPaidDate))
+            .isEqualTo(feeHistory.subList(6,9))
     }
     @Test
-    fun student_dao_pending_student_test() = runTest{
-        insert_data()
-        val pager = TestPager(PagingConfig(pageSize = 3, initialLoadSize = 3),studentDao.pendingStudents())
-        val result = pager.refresh() as PagingSource.LoadResult.Page
-        assertThat(result.data).extracting("id").containsExactlyInAnyOrder(1L,2L)
-
+    fun student_dao_advance_fee_history() = runTest{
+        insertData()
+        assertThat(feeHistoryDao.advanceFeeHistory(sid=1,today=today))
+            .isEqualTo(feeHistory.subList(9,11))
     }
+
+
 }
