@@ -76,7 +76,7 @@ class StudentDaoPendingFeeHistoryAfterLastPaidDateTest {
     @Test
     fun current_fee_history() = runTest{
         insertData()
-        assertThat(feeHistoryDao.currentFeeHistory(studentId=1)).
+        assertThat(feeHistoryDao.feeHistoryOnLastPaidDate(studentId =1)).
                 isEqualTo(feeHistory[5])
         assertThat(feeHistoryDao.currentFeeHistory(studentId=1, lastPaidDate = lastPaidDate)).
         isEqualTo(feeHistory[5])

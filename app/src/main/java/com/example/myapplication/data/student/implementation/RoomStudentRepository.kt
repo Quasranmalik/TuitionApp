@@ -133,6 +133,9 @@ class RoomStudentRepository @Inject constructor(@ApplicationContext context: Con
             transactionDao.forStudent(studentId)
         }.flow
 
+    override suspend fun lastPaidDateForStudent(studentId: Long)=transactionDao.lastPaidDateForStudent(studentId)
+
+
     override suspend fun insertStudent(student: Student) {
         val request =OneTimeWorkRequestBuilder<StudentWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

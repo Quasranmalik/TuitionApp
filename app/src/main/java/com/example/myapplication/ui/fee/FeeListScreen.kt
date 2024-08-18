@@ -1,7 +1,5 @@
-package com.example.myapplication.ui.feeList
+package com.example.myapplication.ui.fee
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

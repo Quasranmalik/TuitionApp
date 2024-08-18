@@ -28,7 +28,7 @@ interface FeeHistoryDao {
     @Query("SELECT * FROM FeeHistory WHERE  student_id =:studentId AND join_date = " +
             "(SELECT MAX(join_date) FROM FeeHistory WHERE student_id = :studentId AND " +
             "join_date <= (SELECT MAX(paid_till_date) FROM Transactions WHERE :studentId = Transactions.student_id ))")
-    suspend fun currentFeeHistory(studentId: Long):FeeHistory
+    suspend fun feeHistoryOnLastPaidDate(studentId: Long):FeeHistory
     @Query("SELECT * FROM FeeHistory WHERE student_id = :studentId AND" +
             "  (SELECT MAX(paid_till_date) FROM Transactions WHERE :studentId = Transactions.student_id ) < join_date AND " +
             "join_date <= CAST(strftime('%s',:today * 24*60*60,'unixepoch','-1 month')  AS INT ) /(24*60*60) ")

@@ -129,7 +129,7 @@ fun FeeField(modifier:Modifier = Modifier,changedFeeProvider:()->String,currentF
         IconButton(modifier= Modifier.align(Alignment.CenterEnd),onClick = onSave,
             enabled=!isError,colors=IconButtonDefaults.iconButtonColors(contentColor = Color.Blue)) {
             Icon(modifier= Modifier.size(40.dp),imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "enter")
-        }
+        }                    
     }
 
 }

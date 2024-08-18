@@ -43,6 +43,10 @@ class FakeStudentRepository1(private val studentsNameAndDate:List<NameWithFeeDat
         TODO("Not yet implemented")
     }
 
+    override suspend fun lastPaidDateForStudent(studentId: Long): LocalDate {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getPendingAmount(studentId: Long): Int {
         TODO("Not yet implemented")
     }

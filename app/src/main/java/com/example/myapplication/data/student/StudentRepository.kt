@@ -19,6 +19,7 @@ interface StudentRepository {
 
      fun transactionsForStudent(studentId: Long, pageSize: Int):Flow<PagingData<Transaction>>
 
+     suspend fun lastPaidDateForStudent(studentId:Long):LocalDate
      suspend fun getPendingAmount(studentId:Long):Int
      suspend fun insertStudent(student: Student)
 

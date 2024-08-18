@@ -19,7 +19,7 @@ class RoomStudentRepositoryTest {
         FeeHistory(sid=1, joinDate = LocalDate.of(2020,5,1),fee=400)
     )
 
-    val lastPaidDate = LocalDate.of(2020,2,1)
+    private val lastPaidDate = LocalDate.of(2020,2,1)
 
     private val today = LocalDate.of(2020,6,1)
     @Test

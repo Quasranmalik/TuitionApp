@@ -4,7 +4,7 @@ import com.example.myapplication.ui.model.PaymentMonth
 import java.time.Month
 import java.time.YearMonth
 
-val month1 =  PaymentMonth(fee=100, month= YearMonth.of(2023,Month.JANUARY))
+val month1 =  PaymentMonth(fee=100,day = 1, month= YearMonth.of(2023,Month.JANUARY))
 val month2 = month1.copy(month=month1.month.plusMonths(1))
 val month3 = month1.copy(month=month1.month.plusMonths(2))
 val month4 = month1.copy(month=month1.month.plusMonths(3))
